@@ -1,0 +1,119 @@
+<body>
+                rows:<input type="number"  id="row"/>
+                <br>
+                columns:<input type="number"  id="column"/>
+                <br>
+                start x:<input type="number"  id="pointx"/>
+                <br>
+                start y:<input type="number"  id="pointy"/>
+                <br>
+                <button onclick="Imple_function()">Show all path
+                </button>
+                
+                <script>
+                
+                var direction = 8  
+                var MaxStep = 100 
+                var num;
+                var dx = new Array(0, 1, 2, 2, 1, -1, -2, -2, -1 )
+                var dy = new Array(0, 2, 1, -1, -2, 2, 1, -1, -2 )
+                
+                var path = new Array()
+                for(var i=0;i<MaxStep + 1;i++)
+                {
+                        path[i] = new Array(2)
+                }
+                
+                
+                function Start(x , y , step , MAX_X, MAX_Y,xy) {
+                        var t1, t2, t3, t4, t5, t6, t7, t8;
+                        var x1, y1;
+                
+                        Path(step, MAX_X, MAX_Y,xy);
+                        for (var k = 1; k <= direction; k++) {
+                                x1 = x + dx[k];
+                                y1 = y + dy[k];
+                
+                                if (x1 > MAX_X || y1 > MAX_Y || x1 < 0 || y1 < 0)
+                                        continue;
+                
+                                t1 = (x1 >= 0) && (x1 <= MAX_X);
+                                t2 = (y1 >= 0) && (y1 <= MAX_Y);
+                
+                                                                                                
+                                t3 = (x1 == MAX_X);
+                                t4 = (y1 == MAX_Y);
+                                t5 = (x1 == 0);
+                                t6 = (y1 == 0);
+                                t7 = (x1 == path[0][0]);
+                                t8 = (y1 == path[0][1]);
+                
+                                if (t1 && t2) {
+                                        if (!Judgment(x1 , y1,xy)) {
+                                                path[step][0] = x1;
+                                                path[step][1] = y1;
+                                                if (t7 && t8) {
+                                                        num++;
+                                                        
+                                                        document.write("answer"+num+":");
+                
+                                                        for (var i = 0; i <= step; i++) {
+                                                                document.write("("+path[i][0]+","+ path[i][1]+")");
+                                                                if (i != step)
+                                                                        document.write(" -> ");
+                                                        }
+                                                        document.write("<br>");
+                                                }
+                                                else {
+                                                        Start(x1, y1, step + 1,MAX_X,MAX_Y,xy);
+                                                }
+                                        }
+                                }
+                        }
+                }
+                
+                function Judgment(x , y, xy) {
+                        var judge = false;
+                
+                        if (xy[y][x])
+                                judge = true;
+                        else
+                                xy[y][x] = 1;
+                        return judge;
+                }
+                
+                function Path(step, MAX_X, MAX_Y,xy) {
+                        for (var i = 0; i < MAX_Y; i++)
+                                for (var j = 0; j < MAX_X; j++)
+                                        xy[i][j] = 0;
+                        for (var i = 1; i < step; i++) {
+                                xy[path[i][1]][path[i][0]] = 1;
+                        }
+                }
+                
+                function Imple_function()
+                {
+                        num = 0;
+                        var MAX_X = document.getElementById("column").value;
+                        var MAX_Y = document.getElementById("row").value;
+                        var xy = new Array()
+                        for(var i=0;i<MAX_Y + 1;i++)
+                        {
+                            xy[i] = new Array(MAX_X + 1)
+                            for(var j=0;j<MAX_X;j++)
+                            {
+                                xy[i][j] = 0
+                            }
+                        }
+
+                        path[0][0] = document.getElementById("pointx").value;
+                        path[0][1] = document.getElementById("pointy").value;
+                
+                        
+                        Start(0 ,0 , 1, MAX_X, MAX_Y,xy);
+                        document.write("the number of answers is "+num);
+                }
+				
+                </script>
+                
+                </body>
