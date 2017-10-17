@@ -1,0 +1,103 @@
+<DOCTYPE HTML>
+        <html>
+            <head>
+                <title>
+                    最佳工作序列
+                </title>
+    
+                <body>
+                    
+    
+                    <script>
+                        main();
+                        function job(id,time,dead,profit){
+                            this.id =id;
+                            this.time=time;
+                            this.dead=dead;
+                            this.profit=profit;
+                        }
+                        
+                        function main(){
+                            var alljob = new Array();
+                            var job1 = new job('1', 4, 10, 2);
+                            var job2 = new job('2', 3, 8, 3 );
+                            var job3 = new job('3', 2, 4, 3 );
+                            var job4 = new job('4', 1, 2, 6);
+    
+                            alljob[0] = job1;
+                            alljob[1] = job2;
+                            alljob[2] = job3;
+                            alljob[3] = job4;
+    
+                           bubbleSort(alljob);
+                           
+                           bestRe(alljob);
+                        }
+    
+                        function bubbleSort(alljob) {
+                            var len = alljob.length;
+                            for (var i = 0; i < len; i++) {
+                                for (var j = 0; j < len - 1 - i; j++) {
+                                    if (alljob[j].profit < alljob[j+1].profit) {
+                                        var temp = alljob[j+1];
+                                        alljob[j+1] = alljob[j];
+                                        alljob[j] = temp;
+                                    }
+                                }
+                            }
+                           for (var i = 0; i < len-1; i++) {
+                               if(alljob[i].profit == alljob[i+1].profit && alljob[i+1].dead < alljob[i].dead){
+                                    var temp = alljob[i+1];
+                                    alljob[i+1] = alljob[i];
+                                    alljob[i] = temp;
+                               }
+                           }
+    
+                            return alljob;
+                        }
+                        
+                        function bestRe(alljob){
+                            var result =new Array();
+                            var ClosingDate;
+                            var time;
+                            var flag = 0;
+                            var len = alljob.length;
+                            
+                            var timeSum=0;
+                            for(var i=0;i<len;i++){
+                                timeSum+=alljob[i].time;
+                            }
+                            for(var i=0;i<timeSum;i++){
+                                result[i]=-1;
+                            }
+                            
+                            for(var i=0;i<len;i++){
+                                ClosingDate=alljob[i].dead-1;
+                                time=alljob[i].time;
+                                if(result[ClosingDate]==-1){
+                                    result[ClosingDate]=i;
+                                    time--;
+                                }
+                                for(var j=ClosingDate-1;j>= 0;j--){
+                                    if(!time){
+                                        break;
+                                    }
+                                    if(result[j]==-1){
+                                        result[j]=i;
+                                        time--;    
+                                    }
+                                }
+                            }
+                            document.write("最佳顺序为(数字代表任务序号)：");
+                            for(var i=0;i<result.length;i++){
+                                document.write(4-result[i]);
+                                document.write(' ');
+                            }
+                        }
+                       
+    
+                    </script>
+                </body>
+            </head>
+        </html>
+    </DOCTYPE>  
