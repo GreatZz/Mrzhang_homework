@@ -1,0 +1,59 @@
+<DOCTYPE HTML>
+    <html>
+        <head>
+            <title>
+                空间对象几何特征编码
+            </title>
+            <button onclick="myfunction()">画图
+            </button>
+                <br>
+                <br>
+                <canvas id="canvas" width="160" height="160"
+                style = "border : 1px solid #1A1950">
+
+                </canvas>
+        </head>
+        <body>
+
+                    <script>
+                        function myfunction()
+                        {
+                            var arrx = new Array(8);
+                            var arry = new Array(8);
+                            arrx[0] = new Array(22.5,50,75);
+                            arrx[1] = new Array(15,50,85);
+                            arrx[2] = new Array(50,50,50,50,50);
+                            arrx[3] = new Array(50,80);
+                            arrx[4] = new Array(35,30,15);
+                            arrx[5] = new Array(30,50,80,130);
+                            arrx[6] = new Array(85,105,125);
+                            arrx[7] = new Array(125,105,92.5,75);
+                            arry[0] = new Array(50,50,50);
+                            arry[1] = new Array(75,75,75);
+                            arry[2] = new Array(30,50,75,100,130);
+                            arry[3] = new Array(100,100);
+                            arry[4] = new Array(90,110,145);
+                            arry[5] = new Array(110,130,135,140);
+                            arry[6] = new Array(45,80,115);
+                            arry[7] = new Array(40,80,102.5,125);
+
+                            var canvas = document.getElementById('canvas'); 
+                            var cxt = canvas.getContext('2d');
+                            cxt.lineWidth = 10;
+
+                            for(var i = 0;i < arrx.length;i++)
+                            { 
+                                cxt.moveTo(arrx[i][0],arry[i][0]);
+                                for(var j = 1;j < arrx[i].length;j++)
+                                {
+                                    cxt.lineTo(arrx[i][j],arry[i][j]); 
+                                }
+                                    cxt.stroke(); 
+                            }    
+                        }
+                    </script>
+        </body>
+    </html>
+</DOCTYPE>  
+
+
