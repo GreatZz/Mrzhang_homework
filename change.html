@@ -1,0 +1,353 @@
+<DOCTYPE HTML>
+    <HTML>
+        <head>
+            <title>
+                中国地图投影变换
+            </title>
+            <meta charset = "utf-8">
+        </head>
+        
+        
+        <body>
+            <div style="top:500px">
+                <input id="fileInput" type="file" onchange="processFiles()"/>
+            </div>
+            <ul id="navigation"> 
+               <li onmouseover="displaySubMenu(this)" onmouseout="hideSubMenu(this)" >  
+                   <a href="#">投影变换</a> 
+                   <ul> 
+                       <li onclick="Lambert()"><a href="#">兰伯特投影变换</a> </li> 
+                       <li onclick="Mercator()"><a href="#">墨卡托投影变换</a> </li> 
+                       <li onclick="reduction()()"><a href="#">还原</a> </li> 
+                   </ul> 
+               </li> 
+            </ul>
+            <canvas id="myCanvas" width="1100" height="900" style="border:1px solid #c3c3c3">your browser does not support the canvas tag </canvas>
+
+            <script>  
+                var number = new Array();
+                var tran = new Array();
+                var az = new Array();
+                var bz = new Array();
+                var tranx=new Array();
+                var trany=new Array();
+                var fg=0;
+
+                function Lambert(){
+                    var lambert=new Array();
+                    var m,m1,m2;
+                    var n;
+                    var t,t1,t2;
+                    var F;
+                    var O;
+                    var r0,r;
+                    var L,L0;
+                    var a,b,e;
+                    var B0,B1,B2;
+                    var pi=Math.PI;
+                    
+                    fg=1;
+                    a=6378245; b=6356863.01877;  e=Math.sqrt(a*a-b*b)/a; 
+                    B0=0;  B1=20;  B2=40;  L0=105;
+                    m1=Math.cos(B1*pi/180)/Math.sqrt(1-e*e*Math.sin(B1*pi/180)*Math.sin(B1*pi/180));
+                    m2=Math.cos(B2*pi/180)/Math.sqrt(1-e*e*Math.sin(B2*pi/180)*Math.sin(B2*pi/180));
+                    t1=Math.tan(pi/4-B1*pi/360)/Math.pow((1-e*Math.sin(B1*pi/180))/(1-e*Math.sin(B1*pi/180)),e/2);
+                    t2=Math.tan(pi/4-B2*pi/360)/Math.pow((1-e*Math.sin(B2*pi/180))/(1-e*Math.sin(B2*pi/180)),e/2);
+                    n=Math.log(m1/m2)/Math.log(t1/t2);
+                    F=m1/(n*Math.pow(t1,n));
+                    r0=a*F;
+
+                    lambert=number.slice(0);
+                    for(var i=1;i<lambert.length;i++){
+                        if(lambert[i]!=-1){                          
+                            L=lambert[i];
+                            B=lambert[++i];
+                            t=Math.tan(pi/4-B*pi/360)/Math.pow((1-e*Math.sin(B*pi/180))/(1-e*Math.sin(B*pi/180)),e/2);
+                            r=a*F*Math.pow(t,n);
+                            O=n*(L-L0);
+
+                            X=r0-r*Math.cos(O*pi/180);
+                            Y=r*Math.sin(O*pi/180);
+                            lambert[--i]=Y/100000;
+                            lambert[++i]=X/100000;
+                        }else{
+                            i++;
+                        }
+                    }
+
+                    for(var i=0;i<az.length;i++){
+                        L=az[i];
+                        B=bz[i]; 
+                        t=Math.tan(pi/4-B*pi/360)/Math.pow((1-e*Math.sin(B*pi/180))/(1-e*Math.sin(B*pi/180)),e/2);
+                        r=a*F*Math.pow(t,n);
+                        O=n*(L-L0);
+
+                        X=r0-r*Math.cos(O*pi/180);
+                        Y=r*Math.sin(O*pi/180);
+                        tranx[i]=Math.abs(Y/100000) ;
+                        trany[i]=X/1000000;
+                    }
+                    tran=lambert.slice(0);
+                    symmetryy();
+                    draw(tran);
+                }
+                
+                function Mercator(){
+                    var K;
+                    var B0,B;
+                    var a,b,e,e1;
+                    var L,L0;
+                    var X;
+                    var Y;                  
+                    var mercator=new Array();
+                    fg=2;
+                   
+                    B0=0;
+                    a=6378245;  b=6356863.01877;   e=Math.sqrt((a*a-b*b)/(a*a)); e1=Math.sqrt((a*a-b*b)/(b*b));
+                    L0=0;
+                    K=((a*a/b)/(Math.sqrt(1+e1*e1*Math.cos(B0*Math.PI/180)*Math.cos(B0*Math.PI/180))))*Math.cos(B0*Math.PI/180);
+                    mercator=number.slice(0);
+                    for(var i=1;i<mercator.length;i++){
+                        if(mercator[i]!=-1){                          
+                            L=mercator[i];
+                            B=mercator[++i];
+                            Y=K*(L-L0);
+                            X=K*Math.log(Math.tan(Math.PI/4+B*Math.PI/360)*Math.pow((1-(e*Math.sin(B*Math.PI/180)))/(1+(e*Math.sin(B*Math.PI/180))),e/2));
+                            mercator[--i]=Y/10000000;
+                            mercator[++i]=X/100000;
+                        }else{
+                            i++;
+                        }
+                    }
+                    for(var i=0;i<az.length;i++){
+                        L=az[i];
+                        B=bz[i]; 
+                        Y=K*(L-L0);
+                        X=K*Math.log(Math.tan(Math.PI/4+B*Math.PI/360)*Math.pow((1-(e*Math.sin(B*Math.PI/180)))/(1+(e*Math.sin(B*Math.PI/180))),e/2));
+                        tranx[i]=Y/10000000;
+                        trany[i]=X/1000000;
+                    }
+                    tran=mercator.slice(0);
+
+                    symmetryy();           
+                    draw(tran);
+
+                }
+                
+                function reduction(){
+                    fg=0;
+                    tran=number.slice();
+                    tranx=az.slice(0);
+                    trany=bz.slice(0);
+                    symmetryy();
+                    draw(tran);
+                }
+                
+                function processFiles(){
+                    var file=document.getElementById("fileInput").files[0];
+                    var reader=new FileReader();
+                    reader.readAsText(file);
+                    reader.onload=function(e)
+                    {
+                        var str = this.result;     
+                        number= digitalExtraction(str,number);
+                        tran=number.slice(0);
+
+                        XY();
+                        symmetryy();
+                        draw(tran);
+                    }
+                }
+               
+                function digitalExtraction(str,number){
+                    var heap= str.replace(/[^0-9.eEND-]/ig,"A");
+                    heap= heap.replace(/[^0-9.eA-]/ig,"L");
+
+                    var numcharacter="";
+                    var number =new Array();
+                    var i=0;
+                    var flag=1;
+                    var n=0;
+                    var character=heap[flag];
+                    var numline=1;
+                    var isend=0;
+                    number[i++]=-1;
+                   
+                    while(character!=null){
+                        if(character=="L"){
+                            isend=1;
+                            numline++;
+                            number[i++]=-1;
+                        }
+                        if(numline<10 && isend){
+                            flag+=4;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(9<numline<100 && isend){
+                            flag+=5;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(99<numline<1000 && isend){
+                            flag+=6;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(999<numline<10000 && isend){
+                            flag+=7;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(character!="A"){
+                            n=1;
+                            numcharacter+=character;
+                        }else{ 
+                            if(n){
+                                number[i++]=parseFloat(numcharacter);
+                                numcharacter="";
+                                n=0;
+                            }
+                        }
+                        character=heap[++flag];
+                    }   
+                    return number;
+               }
+               
+               
+                function draw(numb){
+                    var canvas=document.getElementById('myCanvas');                        
+                    var cxt=canvas.getContext('2d'); 
+                    cxt.lineWidth = 1;
+                    cxt.strokeStyle = "blue";   
+                    
+
+                    var n= numb.length;
+
+                    var flag=0;
+                    var x= new Array();
+                    var y =new Array();
+                    var j=0;
+                   
+                    var sb=new Array();
+                    sb=outsourcing(numb);
+                    var mx,my;
+                    mx=(document.getElementById("myCanvas").clientWidth/2)-sb[0];
+                    my=(document.getElementById("myCanvas").clientHeight/2)-sb[1];
+
+
+                    cxt.clearRect(0,0,1100,900);
+                    for(var i=1,j=0;i<n;i++){
+                        if(numb[i]!=-1){
+                            x[j]=numb[i];
+                            y[j]=numb[++i];
+                            x[j]+=mx;
+                            y[j]+=my;
+                            j++;                         
+                        }else{
+                            cxt.beginPath();
+                            cxt.moveTo(x[0],y[0]);
+                            for(var k=1;k<j;k++){
+                                cxt.lineTo(x[k],y[k]);
+                            }
+                            cxt.stroke();
+                            j=0;
+                            i++;
+                        }
+                    }
+                }
+               
+                function symmetryy(){
+                    var numbersymmetryy = new Array();
+                    numbersymmetryy=tran.slice(0);
+                    var x,y;
+                    var sb=new Array();
+                   
+                    sb=outsourcing(numbersymmetryy);
+
+                    for(var i=1;i<numbersymmetryy.length;i++){
+                        if(numbersymmetryy[i]!=-1){
+                            y=numbersymmetryy[++i];
+                            y-=sb[1];
+                            numbersymmetryy[i]=-y;
+                            numbersymmetryy[i]+=sb[1];
+                        }else{
+                            i++;
+                        }
+                    }
+
+                    for(var i=1;i<numbersymmetryy.length;i++){
+                        if(numbersymmetryy[i]!=-1){
+                            numbersymmetryy[i]*=10;   
+                        }else{
+                            i++;
+                        }
+                    }
+
+               
+                    for(var i=0;i<tranx.length;i++){
+                        y=trany[i];
+                        y-=sb[1];
+                        trany[i]=-y;
+                        trany[i]+=sb[1];
+                        tranx[i]*=10;
+                        trany[i]*=10;
+                    }
+                    tran=numbersymmetryy.slice(0);
+                }
+           
+                function outsourcing(arr){
+                    var xs,ys,xb,yb;
+                    var xm,ym;
+                    var sb=new Array();
+                    xb=arr[1];
+                    yb=arr[2];
+                    xs=arr[1];
+                    ys=arr[2];
+                    for(var i=3;i<arr.length;i++){
+                        if(arr[i]!=-1){
+                            if(xb<arr[i]){
+                                xb=arr[i];
+                            }
+                            if(xs>arr[i]){
+                                xs=arr[i];
+                            }
+                            if(yb<arr[++i]){
+                                yb=arr[i];
+                            }
+                            if(ys>arr[i]){
+                                ys=arr[i];
+                            }
+                        }else{
+                            i++;
+                        }
+                    }
+                    xm=(xs+xb)/2;
+                    ym=(ys+yb)/2;
+                    sb[0]=xm;
+                    sb[1]=ym;
+                    sb[2]=xs;
+                    sb[3]=ys;
+                    sb[4]=xb;
+                    sb[5]=yb;
+
+                    return sb;
+                }
+
+                function XY(){
+                    var sb=new Array();
+                    var hig,wid;
+                    var x0,y0;
+
+                    for(var i=0;i<8;i++){   
+                        az[i]=(i+2)*10;
+                        bz[i]=(i+1)*10;
+                    }
+                    
+                    tranx=az.slice(0);
+                    trany=bz.slice(0);
+                }
+            </script>   
+        </body>
+    </HTML>
+</DOCTYPE>
