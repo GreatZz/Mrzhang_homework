@@ -1,0 +1,187 @@
+<Doctype>
+    <html>
+        <head>
+            <title>
+                practice
+            </title>
+        </head>
+        
+        <body>
+            <div>
+                <input id="fileInput" type="file" onchange="processFiles()"/><br>
+                <canvas id="myCanvas" width="600" height="600" style="border:1px solid #c3c3c3">your browser does not support the canvas tag </canvas>
+
+            </div>
+                
+            <script>
+                var number=new Array();
+                var tran=new Array();
+                 
+                 function processFiles(){
+                    var file=document.getElementById("fileInput").files[0];
+                    var reader=new FileReader();
+                    reader.readAsText(file);
+                    reader.onload=function(e)
+                    {
+                        var str = this.result;     
+                        number= digitalExtraction(str,number);
+                        tran=number.slice(0);
+
+                        symmetryy();
+                        draw(tran);
+                    }
+                }
+                
+                function digitalExtraction(str,number){
+                    var heap= str.replace(/[^0-9.eEND-]/ig,"A");
+                    heap= heap.replace(/[^0-9.eA-]/ig,"L");
+
+                    var numcharacter="";
+                    var number =new Array();
+                    var i=0;
+                    var flag=1;
+                    var n=0;
+                    var character=heap[flag];
+                    var numline=1;
+                    var isend=0;
+                    number[i++]=-1;
+                   // document.write(heap);
+                    while(character!=null){
+                        if(character=="L"){
+                            isend=1;
+                            numline++;
+                            number[i++]=-1;
+                        }
+                        if(numline<10 && isend){
+                            flag+=4;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(9<numline<100 && isend){
+                            flag+=5;
+                            character=heap[flag];
+                            isend=0;
+                        }
+                        if(character!="A"){
+                            n=1;
+                            numcharacter+=character;
+                        }else{ 
+                            if(n){
+                                number[i++]=parseFloat(numcharacter);
+                                numcharacter="";
+                                n=0;
+                            }
+                        }
+                        character=heap[++flag];
+                    }   
+                    return number;
+                }
+   
+                function draw(numb){
+                    var canvas=document.getElementById('myCanvas');                        
+                    var cxt=canvas.getContext('2d'); 
+                    cxt.lineWidth = 2;
+                    cxt.strokeStyle = "blue";                      
+
+                    var n= numb.length;
+
+                    var flag=0;
+                    var x= new Array();
+                    var y =new Array();
+                    var j=0;
+                   
+                    var sb=new Array();
+                    sb=outsourcing(numb);
+                    var mx,my;
+                    mx=(document.getElementById("myCanvas").clientWidth/2)-sb[0];
+                    my=(document.getElementById("myCanvas").clientHeight/2)-sb[1];
+
+
+                    cxt.clearRect(0,0,document.getElementById("myCanvas").clientWidth,document.getElementById("myCanvas").clientHeight);
+                    for(var i=1,j=0;i<n;i++){
+                        if(numb[i]!=-1){
+                            x[j]=numb[i];
+                            y[j]=numb[++i];
+                            x[j]+=mx;
+                            y[j]+=my;
+                            j++;                         
+                        }else{
+                            cxt.beginPath();
+                            cxt.moveTo(x[0],y[0]);
+                            for(var k=1;k<j;k++){
+                                cxt.lineTo(x[k],y[k]);
+                            }
+                            cxt.stroke();
+                            j=0;
+                            i++;
+                        }
+                    }
+                }
+         
+                function symmetryy(){
+                    var numbersymmetryy = new Array();
+                    numbersymmetryy=tran.slice(0);
+                    var x,y;
+                    var sb=new Array();
+                   
+                    sb=outsourcing(numbersymmetryy);
+
+      
+                    for(var i=1;i<numbersymmetryy.length;i++){
+                        if(numbersymmetryy[i]!=-1){
+                            y=numbersymmetryy[++i];
+                            y-=sb[1];
+                            numbersymmetryy[i]=-y;
+                            numbersymmetryy[i]+=sb[1];
+                        }else{
+                            i++;
+                        }
+                    }
+
+                    for(var i=1;i<numbersymmetryy.length;i++){
+                        if(numbersymmetryy[i]!=-1){
+                            numbersymmetryy[i]*=3;   
+                        }else{
+                            i++;
+                        }
+                    }
+                    tran=numbersymmetryy.slice(0);
+                }
+
+                function outsourcing(arr){
+                    var xs,ys,xb,yb;
+                    var xm,ym;
+                    var sb=new Array();
+                    xb=arr[1];
+                    yb=arr[2];
+                    xs=arr[1];
+                    ys=arr[2];
+                    for(var i=3;i<arr.length;i++){
+                        if(arr[i]!=-1){
+                            if(xb<arr[i]){
+                                xb=arr[i];
+                            }
+                            if(xs>arr[i]){
+                                xs=arr[i];
+                            }
+                            if(yb<arr[++i]){
+                                yb=arr[i];
+                            }
+                            if(ys>arr[i]){
+                                ys=arr[i];
+                            }
+                        }else{
+                            i++;
+                        }
+                    }
+                    xm=(xs+xb)/2;
+                    ym=(ys+yb)/2;
+                    sb[0]=xm;
+                    sb[1]=ym;
+
+                    return sb;
+                }
+            </script>
+        </body>
+    </html>
+</Doctype> 
